@@ -167,6 +167,7 @@ body {
 }
 
 .settings .task-menu.show {
+	
 	transform: scale(1);
 }
 
