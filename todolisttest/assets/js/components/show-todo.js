@@ -55,6 +55,9 @@ export const showTodo = (todoList, taskBox, filterStatus) => {
 
   const btns = document.querySelectorAll(".settings button");
   const taskMenus = document.querySelectorAll(".settings .task-menu");
+  const deleteBtn = document.querySelectorAll(".deleteBtn");
+  const editBtn = document.querySelectorAll(".editBtn");
+  const taskInput = document.querySelector(".task-input input");
 
   btns.forEach((btn, index) => {
     btn.onclick = () => {
@@ -71,12 +74,26 @@ export const showTodo = (todoList, taskBox, filterStatus) => {
   });
 
   // delete btn
-  const deleteBtn = document.querySelectorAll(".deleteBtn");
   deleteBtn.forEach((btn, index) => {
     btn.addEventListener("click", () => {
       todoList.splice(index, 1);
       localStorage.setItem("todo-list", JSON.stringify(todoList));
       showTodo(todoList, taskBox, filterStatus);
+    });
+  });
+
+  //edit Btn
+  editBtn.forEach((btn, index) => {
+    btn.addEventListener("click", () => {
+      taskInput.value = todoList[index].name;
+
+      taskInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          todoList[index].name = taskInput.value;
+          localStorage.setItem("todo-list", JSON.stringify(todoList));
+          showTodo(todoList, taskBox, filterStatus);
+        }
+      });
     });
   });
 };
