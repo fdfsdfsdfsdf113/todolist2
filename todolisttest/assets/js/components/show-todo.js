@@ -8,9 +8,13 @@ export const showTodo = (todoList, taskBox, filterStatus) => {
   const htmls = result.map((todo, index) => {
     return /* html */ `
       <li class="task">
-        <label for="checked">
-          <input type="checkbox" id="checked">
-          <p class="">${todo.name}</p>
+        <label for="checked-${todo.id}">
+          <input type="checkbox" id="checked-${todo.id}" 
+          class = "input-checked"
+          data-id= "${todo.id}" ${todo.status === "completed" ? "checked" : ""}>
+          <p class="${todo.status === "completed" ? "line-through" : ""}">${
+      todo.name
+    }</p>
         </label>
 
         <div class="settings">
@@ -31,7 +35,7 @@ export const showTodo = (todoList, taskBox, filterStatus) => {
               </svg>
               <span>Edit</span>
             </li>
-            <li class ="deleteBtn">
+            <li class ="deleteBtn" data-id ="${todo.id}" >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="size-6">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -55,9 +59,6 @@ export const showTodo = (todoList, taskBox, filterStatus) => {
 
   const btns = document.querySelectorAll(".settings button");
   const taskMenus = document.querySelectorAll(".settings .task-menu");
-  const deleteBtn = document.querySelectorAll(".deleteBtn");
-  const editBtn = document.querySelectorAll(".editBtn");
-  const taskInput = document.querySelector(".task-input input");
 
   btns.forEach((btn, index) => {
     btn.onclick = () => {
@@ -74,26 +75,66 @@ export const showTodo = (todoList, taskBox, filterStatus) => {
   });
 
   // delete btn
-  deleteBtn.forEach((btn, index) => {
-    btn.addEventListener("click", () => {
-      todoList.splice(index, 1);
-      localStorage.setItem("todo-list", JSON.stringify(todoList));
-      showTodo(todoList, taskBox, filterStatus);
+  const deleteBtn = document.querySelectorAll(".task-menu .deleteBtn");
+  deleteBtn.forEach((btnDelete) => {
+    btnDelete.addEventListener("click", () => {
+      const id = btnDelete.dataset.id;
+      const newTodoList = todoList.filter((todo) => todo.id !== id);
+
+      localStorage.setItem("todo-list", JSON.stringify(newTodoList));
+      showTodo(newTodoList, taskBox, filterStatus);
     });
   });
 
-  //edit Btn
-  editBtn.forEach((btn, index) => {
-    btn.addEventListener("click", () => {
-      taskInput.value = todoList[index].name;
+  //check input
+  const checkboxs = document.querySelectorAll(".input-checked");
+  checkboxs.forEach((checkboxItem) => {
+    checkboxItem.addEventListener("click", () => {
+      const lastChild = checkboxItem.parentElement.lastElementChild;
+      const checked = checkboxItem.checked;
+      const id = checkboxItem.dataset.id;
+      const todoItem = todoList.find((todo) => todo.id === id);
 
-      taskInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          todoList[index].name = taskInput.value;
-          localStorage.setItem("todo-list", JSON.stringify(todoList));
-          showTodo(todoList, taskBox, filterStatus);
+      if (todoItem) {
+        if (checked) {
+          todoItem.status = "completed";
+          lastChild.classList.add("line-through");
+        } else {
+          todoItem.status = "pending";
+          lastChild.classList.remove("line-through");
         }
-      });
+      }
+      const result = todoList.map((todo) => (todo.id === id ? todoItem : todo));
+      localStorage.setItem("todo-list", JSON.stringify(result));
     });
   });
+
+  // //edit
+  // const btnEdits = document.querySelectorAll(".task-menu .editBtn");
+  // btnEdits.forEach((btnEdit) => {
+  //   btnEdit.addEventListener("click", () => {
+  //     const { id, name } = btnEdit.dataset;
+
+  //     const taskInput = document.querySelector(".task-input input");
+  //     taskInput.value = name;
+  //     taskInput.focus();
+  //     // isEditTask = true;
+  //   });
+  // });
+
+  // //edit Btn
+  // const editBtn = document.querySelectorAll(".task-menu .editBtn");
+  // editBtn.forEach((btn, index) => {
+  //   btn.addEventListener("click", () => {
+  //     taskInput.value = todoList[index].name;
+
+  //     taskInput.addEventListener("keydown", (event) => {
+  //       if (event.key === "Enter") {
+  //         todoList[index].name = taskInput.value;
+  //         localStorage.setItem("todo-list", JSON.stringify(todoList));
+  //         showTodo(todoList, taskBox, filterStatus);
+  //       }
+  //     });
+  //   });
+  // });
 };
